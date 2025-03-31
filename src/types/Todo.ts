@@ -6,6 +6,7 @@ export interface Todo {
 }
 
 export enum Error {
+  DEFAULT = '',
   LOAD = 'Unable to load todos',
   TITLE = 'Title should not be empty',
   ADD = 'Unable to add a todo',

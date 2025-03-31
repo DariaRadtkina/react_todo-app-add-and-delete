@@ -2,6 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import React from 'react';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -24,7 +25,7 @@ export const TodoItem: React.FC<Props> = ({
   return (
     <div
       data-cy="Todo"
-      className={`todo ${todo.completed && !isTemp ? 'completed' : ''}`}
+      className={classNames('todo', { completed: todo.completed && !isTemp })}
     >
       <label className="todo__status-label">
         <input
@@ -51,7 +52,7 @@ export const TodoItem: React.FC<Props> = ({
 
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${isLoading ? 'is-active' : ''}`}
+        className={classNames('modal', 'overlay', { 'is-active': isLoading })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

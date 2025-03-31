@@ -2,6 +2,7 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 
 import React from 'react';
+import classNames from 'classnames';
 import { Todo } from '../../types/Todo';
 
 type Props = {
@@ -36,7 +37,9 @@ export const Todos: React.FC<Props> = ({ todo, deleteTodo, loadingTodo }) => {
       </button>
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${loadingTodo.includes(todo.id) ? 'is-active' : ''}`}
+        className={classNames('modal', 'overlay', {
+          'is-active': loadingTodo.includes(todo.id),
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />

@@ -1,7 +1,8 @@
 import React from 'react';
+import classNames from 'classnames';
 
 type Props = {
-  countItemsCompleted: number;
+  notCompletedTodosCount: number;
   addTodo: (title: string) => void;
   inputRef: React.RefObject<HTMLInputElement>;
   inputValue: string;
@@ -10,7 +11,7 @@ type Props = {
 };
 
 export const Header: React.FC<Props> = ({
-  countItemsCompleted,
+  notCompletedTodosCount,
   addTodo,
   inputRef,
   inputValue,
@@ -26,7 +27,9 @@ export const Header: React.FC<Props> = ({
     <header className="todoapp__header">
       <button
         type="button"
-        className={`todoapp__toggle-all ${countItemsCompleted === 0 && 'active'}`}
+        className={classNames('todoapp__toggle-all', {
+          active: notCompletedTodosCount === 0,
+        })}
         data-cy="ToggleAllButton"
       />
 

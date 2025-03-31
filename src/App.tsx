@@ -5,20 +5,20 @@ import { Header } from './components/Header/Header';
 import { Footer } from './components/Footer/Footer';
 import { TodoList } from './components/TodoList/TodoList';
 import { Error, FilterBy, Todo } from './types/Todo';
-// eslint-disable-next-line max-len
-import { ErrorNotification } from './components/ErrorNotification/ErrorNotification';
+import { ErrorNotification } from './components/Error/ErrorNotification';
 import { TodoItem } from './components/TodoItem/TodoItem';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filterTodo, setFilterTodo] = useState<string>(FilterBy.ALL);
 
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(Error.DEFAULT);
 
   const [isLoading, setIsLoading] = useState(true);
   const [loadingTodo, setLoadingTodo] = useState<number[]>([]);
 
-  const [tempTodo, setTempTodo] = useState<Todo | null>();
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
+
   const [inputValue, setInputValue] = useState('');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,11 +30,11 @@ export const App: React.FC = () => {
       .getTodos()
       .then(data => {
         setTodos(data);
-        setErrorMessage('');
+        setErrorMessage(Error.DEFAULT);
       })
       .catch(() => {
         setErrorMessage(Error.LOAD);
-        setTimeout(() => setErrorMessage(''), 3000);
+        setTimeout(() => setErrorMessage(Error.DEFAULT), 3000);
       })
       .finally(() => setIsLoading(false));
   }
@@ -46,7 +46,7 @@ export const App: React.FC = () => {
 
     if (!trimmedTitle) {
       setErrorMessage(Error.TITLE);
-      setTimeout(() => setErrorMessage(''), 3000);
+      setTimeout(() => setErrorMessage(Error.DEFAULT), 3000);
 
       return;
     }
@@ -61,7 +61,7 @@ export const App: React.FC = () => {
     setTempTodo(tempNewTodo);
     setIsInputDisabled(true);
     setLoadingTodo((prev: number[]) => [...prev, clientData.USER_ID]);
-    setErrorMessage('');
+    setErrorMessage(Error.DEFAULT);
 
     clientData
       .addTodos({
@@ -76,7 +76,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(Error.ADD);
-        setTimeout(() => setErrorMessage(''), 3000);
+        setTimeout(() => setErrorMessage(Error.DEFAULT), 3000);
         setInputValue(trimmedTitle);
         setTempTodo(null);
       })
@@ -93,7 +93,7 @@ export const App: React.FC = () => {
 
   function deleteTodo(todoId: number) {
     setLoadingTodo((prev: number[]) => [...prev, todoId]);
-    setErrorMessage('');
+    setErrorMessage(Error.DEFAULT);
 
     clientData
       .deleteTodos(todoId)
@@ -104,7 +104,7 @@ export const App: React.FC = () => {
       })
       .catch(() => {
         setErrorMessage(Error.DELETE);
-        setTimeout(() => setErrorMessage(''), 3000);
+        setTimeout(() => setErrorMessage(Error.DEFAULT), 3000);
       })
       .finally(() => {
         setLoadingTodo((prev: number[]) => prev.filter(id => id !== todoId));
@@ -121,19 +121,20 @@ export const App: React.FC = () => {
   }
 
   const filteredByCompleted = todos.filter(todo => {
-    if (filterTodo === FilterBy.ACTIVE) {
-      return !todo.completed;
-    }
+    switch (filterTodo) {
+      case FilterBy.ACTIVE:
+        return !todo.completed;
 
-    if (filterTodo === FilterBy.COMPLETED) {
-      return todo.completed;
-    }
+      case FilterBy.COMPLETED:
+        return todo.completed;
 
-    return true;
+      default:
+        return true;
+    }
   });
 
-  const countFilterNotCompleted = todos.filter(todo => !todo.completed).length;
-  const countFilterCompleted = todos.filter(todo => todo.completed).length;
+  const notCompletedTodosCount = todos.filter(todo => !todo.completed).length;
+  const completedTodoCount = todos.filter(todo => todo.completed).length;
 
   if (!clientData.USER_ID) {
     return <UserWarning />;
@@ -145,7 +146,7 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
-          countItemsCompleted={countFilterNotCompleted}
+          notCompletedTodosCount={notCompletedTodosCount}
           addTodo={addTodo}
           inputRef={inputRef}
           inputValue={inputValue}
@@ -173,8 +174,8 @@ export const App: React.FC = () => {
 
         {todos.length > 0 && (
           <Footer
-            countItemsCompleted={countFilterNotCompleted}
-            countItemsNotCompleted={countFilterCompleted}
+            notCompletedTodosCount={notCompletedTodosCount}
+            completedTodoCount={completedTodoCount}
             setFilterTodo={setFilterTodo}
             filterTodo={filterTodo}
             clearCompletedTodos={clearCompletedTodos}
